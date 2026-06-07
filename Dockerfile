@@ -4,12 +4,20 @@ FROM python:3.9-slim
 # הגדרת תיקיית עבודה
 WORKDIR /app
 
-# העתקת דרישות והתקנתן
+# התקנת כלי מערכת בסיסיים
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# העתקת קבצי התלויות והתקנתן
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # העתקת כל שאר הקבצים
 COPY . .
 
-# הרצת האפליקציה
-CMD ["streamlit", "run", "app.py", "--server.port", "8080"]
+# חשיפת פורט 8080 ל-Cloud Run
+EXPOSE 8080
+
+# הרצת האפליקציה בפורט הנכון
+CMD ["streamlit", "run", "app.py", "--server.port=8080", "--server.address=0.0.0.0"]
